@@ -1,0 +1,84 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29123.88
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsBase", "Tests\TestsBase.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggerWrapperCommonLog", "LoggerWrapperCommonLog\LoggerWrapperCommonLog.csproj", "{50A2E186-ADE4-494D-9B6D-6FE14E0E72BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggerWrapperWindows", "LoggerWrapperWindows\LoggerWrapperWindows.csproj", "{4A813242-5EA7-4B6F-A444-1C7E6656A73B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsWindows", "TestsWindows\TestsWindows.csproj", "{F34E24E9-D636-4960-9DB6-0CA57399F1CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsCommonLog", "TestsCommonLog\TestsCommonLog.csproj", "{2C9C34D7-C977-49C1-812A-DA54F51FCC99}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CE0ABADB-4FFC-4986-9348-E3C5FE4F1632}"
+	ProjectSection(SolutionItems) = preProject
+		.tfignore = .tfignore
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoggerWrapper", "LoggerWrapper\LoggerWrapper.csproj", "{FC88602F-F3E1-422C-93C4-F2FA86FEB296}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A2E186-ADE4-494D-9B6D-6FE14E0E72BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A2E186-ADE4-494D-9B6D-6FE14E0E72BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A2E186-ADE4-494D-9B6D-6FE14E0E72BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A2E186-ADE4-494D-9B6D-6FE14E0E72BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A813242-5EA7-4B6F-A444-1C7E6656A73B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A813242-5EA7-4B6F-A444-1C7E6656A73B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A813242-5EA7-4B6F-A444-1C7E6656A73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A813242-5EA7-4B6F-A444-1C7E6656A73B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F34E24E9-D636-4960-9DB6-0CA57399F1CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F34E24E9-D636-4960-9DB6-0CA57399F1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F34E24E9-D636-4960-9DB6-0CA57399F1CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F34E24E9-D636-4960-9DB6-0CA57399F1CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C9C34D7-C977-49C1-812A-DA54F51FCC99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C9C34D7-C977-49C1-812A-DA54F51FCC99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C9C34D7-C977-49C1-812A-DA54F51FCC99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C9C34D7-C977-49C1-812A-DA54F51FCC99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC88602F-F3E1-422C-93C4-F2FA86FEB296}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC88602F-F3E1-422C-93C4-F2FA86FEB296}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC88602F-F3E1-422C-93C4-F2FA86FEB296}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC88602F-F3E1-422C-93C4-F2FA86FEB296}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DB5E2086-C2C8-4BBC-A974-BF4D5348E442}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 7
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://idevsk.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = LoggerWrapperCommonLog\\LoggerWrapperCommonLog.csproj
+		SccProjectName1 = LoggerWrapperCommonLog
+		SccLocalPath1 = LoggerWrapperCommonLog
+		SccProjectUniqueName2 = LoggerWrapperWindows\\LoggerWrapperWindows.csproj
+		SccProjectName2 = LoggerWrapperWindows
+		SccLocalPath2 = LoggerWrapperWindows
+		SccProjectUniqueName3 = Tests\\TestsBase.csproj
+		SccProjectName3 = Tests
+		SccLocalPath3 = Tests
+		SccProjectUniqueName4 = TestsWindows\\TestsWindows.csproj
+		SccProjectName4 = TestsWindows
+		SccLocalPath4 = TestsWindows
+		SccProjectUniqueName5 = TestsCommonLog\\TestsCommonLog.csproj
+		SccProjectName5 = TestsCommonLog
+		SccLocalPath5 = TestsCommonLog
+		SccProjectUniqueName6 = LoggerWrapper\\LoggerWrapper.csproj
+		SccProjectName6 = LoggerWrapper
+		SccLocalPath6 = LoggerWrapper
+	EndGlobalSection
+EndGlobal
