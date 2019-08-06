@@ -1,4 +1,4 @@
-LoggerWrapper
+# LoggerWrapper
 Just another logger wrapper for Log4Net like loggers.
 
 It specifically for library developers, when you would like not to lock an user of your library to use some specific version of log4net.
