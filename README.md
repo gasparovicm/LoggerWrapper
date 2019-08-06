@@ -5,7 +5,7 @@ It specifically for library developers, when you would like not to lock an user 
 Actualy is available only as source code.
 Nuget will come ...
 
-Base class is LogggerWrapper , with his interface ILogger, and his method LoggerWrapper.CreateFromILogLikeObject(object). 
+Base class is LoggerWrapper , with his interface ILogger, and his method LoggerWrapper.CreateFromILogLikeObject(object). 
 Given object will be "examined" and then apropriate delegates will be created.
 There is also LoggerWithLevels class which will add simplier version of log4net log methods.
 Another usefull class is NoOpLogger which is just emty logger class with no real logging.
