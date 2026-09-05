@@ -141,7 +141,7 @@ namespace idevUnitTests.Log
         {
             //Arrange
             var messages = new List<Tuple<LogLevel, string, Exception>>();
-            var logger = new EventLogLogger("Test");
+            var logger = new EventLogLogger("Test") { WriteEntryToEventLog = (x, y, z) => { } };
             logger.IsInfoEnabled = true;
             logger.LogMessageHandler += (x, y, z) => messages.Add(new Tuple<LogLevel, string, Exception>(x, y, z));
             var testMessage = "Test message";
@@ -162,7 +162,7 @@ namespace idevUnitTests.Log
         {
             //Arrange
             var messages = new List<Tuple<LogLevel, string, Exception>>();
-            var logger = new EventLogLogger("Test");
+            var logger = new EventLogLogger("Test") { WriteEntryToEventLog = (x, y, z) => { } };
             logger.IsTraceEnabled = true;
             logger.LogMessageHandler += (x, y, z) => messages.Add(new Tuple<LogLevel, string, Exception>(x, y, z));
             var testMessage = "Test message";
@@ -183,7 +183,7 @@ namespace idevUnitTests.Log
         {
             //Arrange
             var messages = new List<Tuple<LogLevel, string, Exception>>();
-            var logger = new EventLogLogger("Test");
+            var logger = new EventLogLogger("Test") { WriteEntryToEventLog = (x, y, z) => { } };
             logger.IsDebugEnabled = true;
             logger.LogMessageHandler += (x, y, z) => messages.Add(new Tuple<LogLevel, string, Exception>(x, y, z));
             var testMessage = "Test message";
@@ -204,7 +204,7 @@ namespace idevUnitTests.Log
         {
             //Arrange
             var messages = new List<Tuple<LogLevel, string, Exception>>();
-            var logger = new EventLogLogger("Test");
+            var logger = new EventLogLogger("Test") { WriteEntryToEventLog = (x, y, z) => { } };
             logger.IsWarnEnabled = true;
             logger.LogMessageHandler += (x, y, z) => messages.Add(new Tuple<LogLevel, string, Exception>(x, y, z));
             var testMessage = "Test message";
@@ -225,7 +225,7 @@ namespace idevUnitTests.Log
         {
             //Arrange
             var messages = new List<Tuple<LogLevel, string, Exception>>();
-            var logger = new EventLogLogger("Test");
+            var logger = new EventLogLogger("Test") { WriteEntryToEventLog = (x, y, z) => { } };
             logger.IsErrorEnabled = true;
             logger.LogMessageHandler += (x, y, z) => messages.Add(new Tuple<LogLevel, string, Exception>(x, y, z));
             var testMessage = "Test message";
@@ -246,7 +246,7 @@ namespace idevUnitTests.Log
         {
             //Arrange
             var messages = new List<Tuple<LogLevel, string, Exception>>();
-            var logger = new EventLogLogger("Test");
+            var logger = new EventLogLogger("Test") { WriteEntryToEventLog = (x, y, z) => { } };
             logger.IsFatalEnabled = true;
             logger.LogMessageHandler += (x, y, z) => messages.Add(new Tuple<LogLevel, string, Exception>(x, y, z));
             var testMessage = "Test message";

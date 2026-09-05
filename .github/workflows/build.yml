@@ -1,0 +1,47 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # The add-on and test projects target .NET Framework 4.7.2, so this must run on Windows.
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore LoggerWrapper.sln
+
+      - name: Build
+        run: dotnet build LoggerWrapper.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test LoggerWrapper.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Pack
+        run: dotnet pack LoggerWrapper/LoggerWrapper.csproj --configuration Release --no-build --output artifacts
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/*.nupkg
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/test-results.trx'

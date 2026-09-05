@@ -318,7 +318,7 @@ namespace idev.LoggerWrapper
 
         public override void Trace(string message)
         {
-            if (IsDebugEnabled)
+            if (IsTraceEnabled)
             {
                 traceLog.Write(message);
                 InvokeLogMessageEvent(LogLevel.Trace, message, null);
@@ -327,7 +327,7 @@ namespace idev.LoggerWrapper
 
         public override void Trace( Exception ex)
         {
-            if (IsDebugEnabled)
+            if (IsTraceEnabled)
             {
                 traceLog.Write(ex);
                 InvokeLogMessageEvent(LogLevel.Trace, string.Empty, ex);
@@ -336,7 +336,7 @@ namespace idev.LoggerWrapper
 
         public override void Trace(string message, Exception ex)
         {
-            if (IsDebugEnabled)
+            if (IsTraceEnabled)
             {
                 traceLog.Write(message, ex);
                 InvokeLogMessageEvent(LogLevel.Trace, message, ex);
