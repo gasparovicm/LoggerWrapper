@@ -1,12 +1,14 @@
 # LoggerWrapper Project Review
 
-Review date: 2026-09-05
+Review date: 2026-09-05. Second pass: 2026-09-06.
 
 ## Executive summary
 
 LoggerWrapper is a small logging abstraction composed of a .NET Standard 2.0 core library, a Common.Logging/log4net adapter, and a Windows Event Log adapter. The core project and the full solution both build cleanly from the source recorded on this branch, and `dotnet test` discovers and runs the full suite: 153 tests, all passing.
 
-Every finding raised by this review has been addressed on this branch. The sections below describe the state the review started from and what changed; the Findings section records each item and its resolution.
+Every finding raised by the first pass has been addressed. The sections below describe the state the review started from and what changed; the Findings section records each item and its resolution.
+
+A second pass on 2026-09-06 re-read the library source and found further issues that the first pass did not cover. They are recorded under Open findings and are not yet fixed.
 
 ## Project structure
 
@@ -61,7 +63,7 @@ Result: 153 tests discovered and executed, all passing — 91 in `TestsBase`, 50
 
 Before this branch the same command reported a successful build but discovered no tests, because the test projects referenced NUnit directly without `Microsoft.NET.Test.Sdk` or `NUnit3TestAdapter`. A green `dotnet test` was therefore meaningless.
 
-## Findings
+## Findings (first pass, resolved)
 
 ### Resolved baseline: the dependency references did not build
 
@@ -92,6 +94,50 @@ Fixed: every project in the solution is now SDK-style and uses `PackageReference
 `LogMethodsWithPrefix` used `DateTime.Today`, recording midnight rather than the event time, and inserted no separator between the level and the message, so output could read `InfoMessage`.
 
 Fixed: the prefix now uses `DateTime.Now` formatted as `yyyy-MM-dd HH:mm:ss.fff` with `CultureInfo.InvariantCulture`, and ends with a colon and a space. A prefix now reads `2026-09-05 21:28:14.402 [thread] Name Info: Message`. Both properties are covered by regression tests.
+
+## Open findings (second pass, 2026-09-06)
+
+These were found by re-reading the library source after the first pass closed. None of them is fixed yet.
+
+### Open — Medium-high: the level toggles do nothing on `LoggerWrapper`
+
+`LoggerBase` declares `IsFatalEnabled` through `IsInfoEnabled` as virtual properties with both a getter and a setter over private backing fields. `LoggerWrapper` overrides only the getters, which read `fatalLog.IsEnabled` and its siblings instead. C# allows an override to supply a single accessor, so the setter is inherited unchanged: assigning to it writes a `LoggerBase` field that the `LoggerWrapper` getter never reads.
+
+The result is that `logger.IsInfoEnabled = false` compiles, is silently ignored, and logging continues. Confirmed by running the built library:
+
+```text
+logger.IsInfoEnabled = false;
+logger.Info("should be suppressed");
+-> IsInfoEnabled still reads True, and the message is written
+```
+
+There is no other way to disable a level on this type. `ILogMethods.IsEnabled` is get-only, and the setter on `LogMethods.IsEnabled` is private, so the value can only be supplied at construction. The `LogMethods` instances created by the `(ILogMethods log, string name)` constructor and by `CreateFromILogLikeObject` are always enabled.
+
+This affects `LoggerWrapper` and everything derived from it, which is `TestLogger` and `LoggerWrapperCommonLog`. No test covers it. The existing `IsXxxEnabled` assignments in the suite are all against `NoOpLogger` and `EventLogLogger`, both of which inherit `LoggerBase`'s fields for the getter as well and therefore behave correctly.
+
+Suggested fix: override both accessors in `LoggerWrapper` so an explicit assignment takes precedence over the underlying `ILogMethods.IsEnabled`, and add regression coverage that sets each of the six levels to `false` and asserts nothing reaches the sink.
+
+### Open — Medium: log4net level state is captured once at construction
+
+`LoggerWrapperCommonLog` passes `logger.IsFatalEnabled` and its siblings to the `LogMethods` constructor as values. The wrapper therefore holds whatever log4net reported at the moment it was built, and a later log4net reconfiguration is never picked up. Combined with the finding above, there is no way to correct the stale state afterwards.
+
+Suggested fix: hold the `ILog` and query its level properties per call rather than snapshotting them.
+
+### Open — Low: assorted API and consistency issues
+
+- `LoggerWithLevels.Logger` is a public settable property with no null check, although the constructor rejects a null logger. Assigning null converts a constructor-time `ArgumentNullException` into a `NullReferenceException` on the next log call.
+- The `LogMethods` constructor takes an `exposeMessageMethod` parameter that is never stored or used. It is public API surface that does nothing.
+- `EventLogLogger` writes a level prefix into the event text for `Fatal`, `Trace`, and `Debug`, but not for `Error`, `Warn`, and `Info`, so entries are inconsistently formatted.
+- `TestLogger.LogMessages` is a static `List<LogEntry>` with a public setter. It is unbounded, is not thread-safe, and ships in the published package.
+- `CreateFromILogLikeObject` throws bare `System.Exception` for an unresolvable overload, which callers cannot catch selectively, and throws `NullReferenceException` rather than `ArgumentNullException` when passed null. The `LoggerWrapper(ILogMethods, string)` constructor has the same null behaviour.
+
+### Open — Low: the documented thread slot is empty in practice
+
+`LogMethodsWithPrefix` builds the prefix from `Thread.CurrentThread.Name`, which is null unless the host application sets it. The prefix therefore normally renders as `2026-09-06 00:07:29.371 [] MyComponent Info: message`, not the `[thread]` shown in the first-pass write-up above and in the README. Either populate the slot from the managed thread id as a fallback, or correct both documents.
+
+### Open — Low: the package version does not reflect the behaviour changes
+
+`LoggerWrapper.csproj` still declares version `1.0.0.0`, but this branch changed observable behaviour: `Trace` now gates on `IsTraceEnabled`, and the generated prefix uses a different timestamp and separator. `releases/AnotherLoggerWrapper.1.0.0.nupkg` is the older build. The version needs a bump before the next publish.
 
 ## README review
 
@@ -125,3 +171,8 @@ The core project now declares `PackageLicenseExpression` (MIT) and ships the `LI
 ## Remaining follow-ups
 
 1. ~~Move log4net off 2.0.10 to clear the `NU1902` advisory warning, once a patched version compatible with `Common.Logging.Log4Net.Universal` is selected.~~ Done: log4net is now 3.4.0. `Common.Logging.Log4Net.Universal` 1.2.0 still binds against log4net 2.0.9, so the `log4net` binding redirects in the `app.config` files were raised to 3.4.0.0; the adapter works unchanged through that redirect and all 153 tests pass.
+2. Make the level toggles effective on `LoggerWrapper`, with regression coverage. This is the one open finding with a user-visible correctness impact.
+3. Query the `ILog` level properties per call in `LoggerWrapperCommonLog` instead of snapshotting them at construction.
+4. Clear the low-severity API and consistency items: the unchecked `LoggerWithLevels.Logger` setter, the unused `LogMethods` constructor parameter, the inconsistent `EventLogLogger` prefixes, the static `TestLogger.LogMessages` list, and the bare `Exception` and missing null guards in `CreateFromILogLikeObject`.
+5. Decide whether the prefix should fall back to the managed thread id, then align the README and this document with whichever behaviour is chosen.
+6. Bump the package version before the next publish.
