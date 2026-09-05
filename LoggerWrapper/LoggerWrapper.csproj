@@ -1,22 +1,24 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup Label="Globals">
-    <SccProjectName>SAK</SccProjectName>
-    <SccProvider>SAK</SccProvider>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccLocalPath>SAK</SccLocalPath>
-  </PropertyGroup>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>https://github.com/gasparovicm/LoggerWrapper</Description>
+    <Description>Just another logger wrapper for log4net-like loggers, for library authors who do not want to lock consumers to a specific logging implementation.</Description>
     <Authors>Martin Gasparovic</Authors>
-    <Copyright>Mit License</Copyright>
+    <Copyright>Copyright (c) 2019-2026 Martin Gasparovic</Copyright>
     <PackageProjectUrl>https://github.com/gasparovicm/LoggerWrapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/gasparovicm/LoggerWrapper</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>logging;log4net;wrapper;abstraction</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.0.0</Version>
     <PackageId>AnotherLoggerWrapper</PackageId>
     <Product>AnotherLoggerWrapper</Product>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
