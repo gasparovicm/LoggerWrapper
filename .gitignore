@@ -1,18 +1,43 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# Visual Studio and user-specific state
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.user
+*.vspscc
+*.vssscc
 
-/.vs
-/LoggerWrapper/bin/Debug/netstandard2.0
-/LoggerWrapper/obj
-/LoggerWrapperCommonLog/bin/Debug
-/LoggerWrapperCommonLog/obj
-/LoggerWrapperWindows/bin/Debug
-/LoggerWrapperWindows/obj
-/packages
-/Tests/bin/Debug
-/Tests/obj
-/TestsWindows/bin/Debug
-/TestsWindows/obj
-/TestsCommonLog/bin/Debug
-/TestsCommonLog/obj
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Aa]rtifacts/
+x64/
+x86/
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.cache
+
+# NuGet restore and package outputs
+packages/
+*.nupkg
+*.snupkg
+
+# Published release artifacts preserved intentionally
+!releases/
+!releases/*.nupkg
+!releases/*.snupkg
+
+# Test and coverage outputs
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs
+*.log
