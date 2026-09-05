@@ -47,7 +47,7 @@ A first run against the project references as they stood before this branch fail
 
 This branch corrects that: the projects now reference the restored 2.0.10 package and its 2.0.9 assembly version. All six projects build successfully with no errors.
 
-The only remaining build warning is `NU1902`: log4net 2.0.10 carries a known moderate-severity advisory (GHSA-4f7c-pmjv-c25w). Moving to a patched log4net is left to the dependency-update process rather than this review.
+The only remaining build warning was `NU1902`: log4net 2.0.10 carries a known moderate-severity advisory (GHSA-4f7c-pmjv-c25w). This has since been resolved by moving to log4net 3.4.0 (see the follow-ups below); the solution now builds with no warnings.
 
 ### Test execution
 
@@ -124,4 +124,4 @@ The core project now declares `PackageLicenseExpression` (MIT) and ships the `LI
 
 ## Remaining follow-ups
 
-1. Move log4net off 2.0.10 to clear the `NU1902` advisory warning, once a patched version compatible with `Common.Logging.Log4Net.Universal` is selected.
+1. ~~Move log4net off 2.0.10 to clear the `NU1902` advisory warning, once a patched version compatible with `Common.Logging.Log4Net.Universal` is selected.~~ Done: log4net is now 3.4.0. `Common.Logging.Log4Net.Universal` 1.2.0 still binds against log4net 2.0.9, so the `log4net` binding redirects in the `app.config` files were raised to 3.4.0.0; the adapter works unchanged through that redirect and all 153 tests pass.
