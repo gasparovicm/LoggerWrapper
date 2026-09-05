@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading;
 
 namespace idev.LoggerWrapper
@@ -34,9 +35,14 @@ namespace idev.LoggerWrapper
             writeMessageWithException(GetStandardmessagePrefix() + message, ex);
         }
 
+        internal const string TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+
         private string GetStandardmessagePrefix()
         {
-            var prefix = DateTime.Today + " [" + Thread.CurrentThread.Name + "] " + (string.IsNullOrEmpty(name) ? string.Empty : name) + " " + logLevel;
+            var prefix = DateTime.Now.ToString(TimestampFormat, CultureInfo.InvariantCulture)
+                         + " [" + Thread.CurrentThread.Name + "] "
+                         + (string.IsNullOrEmpty(name) ? string.Empty : name + " ")
+                         + logLevel + ": ";
             return prefix;
         }
     }
