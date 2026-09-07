@@ -1,14 +1,14 @@
 # LoggerWrapper Project Review
 
-Review date: 2026-09-05. Second pass: 2026-09-06.
+Review date: 2026-09-05. Second pass: 2026-09-06. Fixes applied: 2026-09-07.
 
 ## Executive summary
 
-LoggerWrapper is a small logging abstraction composed of a .NET Standard 2.0 core library, a Common.Logging/log4net adapter, and a Windows Event Log adapter. The core project and the full solution both build cleanly from the source recorded on this branch, and `dotnet test` discovers and runs the full suite: 153 tests, all passing.
+LoggerWrapper is a small logging abstraction composed of a .NET Standard 2.0 core library, a Common.Logging/log4net adapter, and a Windows Event Log adapter. The core project and the full solution both build cleanly from the source recorded on this branch, and `dotnet test` discovers and runs the full suite: 173 tests, all passing.
 
 Every finding raised by the first pass has been addressed. The sections below describe the state the review started from and what changed; the Findings section records each item and its resolution.
 
-A second pass on 2026-09-06 re-read the library source and found further issues that the first pass did not cover. They are recorded under Open findings and are not yet fixed.
+A second pass on 2026-09-06 re-read the library source and found further issues that the first pass did not cover. The one with a user-visible correctness impact — the level toggles on `LoggerWrapper` — was fixed on 2026-09-07 and is recorded as resolved below. The remaining second-pass items are still open.
 
 ## Project structure
 
@@ -59,7 +59,7 @@ Command:
 dotnet test .\LoggerWrapper.sln --configuration Release
 ```
 
-Result: 153 tests discovered and executed, all passing — 91 in `TestsBase`, 50 in `TestsCommonLog`, 12 in `TestsWindows`.
+Result: 173 tests discovered and executed, all passing — 111 in `TestsBase`, 50 in `TestsCommonLog`, 12 in `TestsWindows`. `TestsBase` grew from 91 to 111 with the level-toggle regression tests added on 2026-09-07.
 
 Before this branch the same command reported a successful build but discovered no tests, because the test projects referenced NUnit directly without `Microsoft.NET.Test.Sdk` or `NUnit3TestAdapter`. A green `dotnet test` was therefore meaningless.
 
@@ -97,11 +97,11 @@ Fixed: the prefix now uses `DateTime.Now` formatted as `yyyy-MM-dd HH:mm:ss.fff`
 
 ## Open findings (second pass, 2026-09-06)
 
-These were found by re-reading the library source after the first pass closed. None of them is fixed yet.
+These were found by re-reading the library source after the first pass closed. The first has since been fixed; the rest are still open.
 
-### Open — Medium-high: the level toggles do nothing on `LoggerWrapper`
+### Resolved — Medium-high: the level toggles did nothing on `LoggerWrapper`
 
-`LoggerBase` declares `IsFatalEnabled` through `IsInfoEnabled` as virtual properties with both a getter and a setter over private backing fields. `LoggerWrapper` overrides only the getters, which read `fatalLog.IsEnabled` and its siblings instead. C# allows an override to supply a single accessor, so the setter is inherited unchanged: assigning to it writes a `LoggerBase` field that the `LoggerWrapper` getter never reads.
+`LoggerBase` declares `IsFatalEnabled` through `IsInfoEnabled` as virtual properties with both a getter and a setter over private backing fields. `LoggerWrapper` overrode only the getters, which read `fatalLog.IsEnabled` and its siblings instead. C# allows an override to supply a single accessor, so the setter is inherited unchanged: assigning to it writes a `LoggerBase` field that the `LoggerWrapper` getter never reads.
 
 The result is that `logger.IsInfoEnabled = false` compiles, is silently ignored, and logging continues. Confirmed by running the built library:
 
@@ -111,15 +111,21 @@ logger.Info("should be suppressed");
 -> IsInfoEnabled still reads True, and the message is written
 ```
 
-There is no other way to disable a level on this type. `ILogMethods.IsEnabled` is get-only, and the setter on `LogMethods.IsEnabled` is private, so the value can only be supplied at construction. The `LogMethods` instances created by the `(ILogMethods log, string name)` constructor and by `CreateFromILogLikeObject` are always enabled.
+There was no other way to disable a level on this type. `ILogMethods.IsEnabled` is get-only, and the setter on `LogMethods.IsEnabled` is private, so the value can only be supplied at construction. The `LogMethods` instances created by the `(ILogMethods log, string name)` constructor and by `CreateFromILogLikeObject` are always enabled.
 
-This affects `LoggerWrapper` and everything derived from it, which is `TestLogger` and `LoggerWrapperCommonLog`. No test covers it. The existing `IsXxxEnabled` assignments in the suite are all against `NoOpLogger` and `EventLogLogger`, both of which inherit `LoggerBase`'s fields for the getter as well and therefore behave correctly.
+This affected `LoggerWrapper` and everything derived from it, which is `TestLogger` and `LoggerWrapperCommonLog`. No test covered it: the `IsXxxEnabled` assignments already in the suite were all against `NoOpLogger` and `EventLogLogger`, both of which inherit `LoggerBase`'s fields for the getter as well and therefore behaved correctly.
 
-Suggested fix: override both accessors in `LoggerWrapper` so an explicit assignment takes precedence over the underlying `ILogMethods.IsEnabled`, and add regression coverage that sets each of the six levels to `false` and asserts nothing reaches the sink.
+Fixed: all six properties in `LoggerWrapper` now override both accessors over a nullable backing field. While a level has never been assigned the getter still reads the underlying `ILogMethods.IsEnabled`, so the previous behaviour and the first-pass trace tests are unchanged. Once assigned, the explicit value takes precedence in both directions: `false` suppresses a level whose sink is enabled, and `true` re-enables one whose sink is disabled. The inherited `LoggerBase` fields are no longer consulted by this type.
+
+`Tests/LoggerWrapperLevelToggleTests.cs` adds 20 regression cases — each of the six levels set to `false` writes nothing to the sink and raises no exposition event, each set to `true` over a disabled sink writes and exposes all three overloads, each left unassigned still follows its `ILogMethods`, and a disable-then-re-enable case and a one-level-disabled case confirm the levels stay independent. Against the previous source 14 of the 20 fail; the 6 that pass are the unassigned cases, which never assign.
+
+`LoggerWrapperCommonLog` and `TestLogger` inherit the corrected behaviour. The finding below is unaffected: `LoggerWrapperCommonLog` still snapshots the log4net level state at construction, so its unassigned getters keep reporting whatever log4net reported at that moment.
+
+`ILoggerBasic` declares these members as `{ get; }` only, so the setters remain reachable through the concrete type rather than the interface. Widening the interface was left as a separate API decision.
 
 ### Open — Medium: log4net level state is captured once at construction
 
-`LoggerWrapperCommonLog` passes `logger.IsFatalEnabled` and its siblings to the `LogMethods` constructor as values. The wrapper therefore holds whatever log4net reported at the moment it was built, and a later log4net reconfiguration is never picked up. Combined with the finding above, there is no way to correct the stale state afterwards.
+`LoggerWrapperCommonLog` passes `logger.IsFatalEnabled` and its siblings to the `LogMethods` constructor as values. The wrapper therefore holds whatever log4net reported at the moment it was built, and a later log4net reconfiguration is never picked up. Since the finding above was fixed the stale state can at least be corrected by assigning the `IsXxxEnabled` property, but nothing re-reads log4net on its own.
 
 Suggested fix: hold the `ILog` and query its level properties per call rather than snapshotting them.
 
@@ -171,7 +177,7 @@ The core project now declares `PackageLicenseExpression` (MIT) and ships the `LI
 ## Remaining follow-ups
 
 1. ~~Move log4net off 2.0.10 to clear the `NU1902` advisory warning, once a patched version compatible with `Common.Logging.Log4Net.Universal` is selected.~~ Done: log4net is now 3.4.0. `Common.Logging.Log4Net.Universal` 1.2.0 still binds against log4net 2.0.9, so the `log4net` binding redirects in the `app.config` files were raised to 3.4.0.0; the adapter works unchanged through that redirect and all 153 tests pass.
-2. Make the level toggles effective on `LoggerWrapper`, with regression coverage. This is the one open finding with a user-visible correctness impact.
+2. ~~Make the level toggles effective on `LoggerWrapper`, with regression coverage. This is the one open finding with a user-visible correctness impact.~~ Done: both accessors are overridden per level over a nullable backing field, and `Tests/LoggerWrapperLevelToggleTests.cs` covers all six levels in both directions. The full suite is 173 tests, all passing.
 3. Query the `ILog` level properties per call in `LoggerWrapperCommonLog` instead of snapshotting them at construction.
 4. Clear the low-severity API and consistency items: the unchecked `LoggerWithLevels.Logger` setter, the unused `LogMethods` constructor parameter, the inconsistent `EventLogLogger` prefixes, the static `TestLogger.LogMessages` list, and the bare `Exception` and missing null guards in `CreateFromILogLikeObject`.
 5. Decide whether the prefix should fall back to the managed thread id, then align the README and this document with whichever behaviour is chosen.

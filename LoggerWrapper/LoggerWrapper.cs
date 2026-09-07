@@ -11,34 +11,64 @@ namespace idev.LoggerWrapper
     {
         #region Public properties
 
+        /// <summary>
+        /// Reports whether the fatal level is enabled. Reads the underlying <see cref="ILogMethods.IsEnabled"/>
+        /// until the property is assigned; an explicit assignment takes precedence from then on.
+        /// </summary>
         public override bool IsFatalEnabled
         {
-            get { return fatalLog.IsEnabled; }
+            get { return isFatalEnabledOverride.HasValue ? isFatalEnabledOverride.Value : fatalLog.IsEnabled; }
+            set { isFatalEnabledOverride = value; }
         }
 
+        /// <summary>
+        /// Reports whether the error level is enabled. Reads the underlying <see cref="ILogMethods.IsEnabled"/>
+        /// until the property is assigned; an explicit assignment takes precedence from then on.
+        /// </summary>
         public override bool IsErrorEnabled
         {
-            get { return errorLog.IsEnabled; }
+            get { return isErrorEnabledOverride.HasValue ? isErrorEnabledOverride.Value : errorLog.IsEnabled; }
+            set { isErrorEnabledOverride = value; }
         }
 
+        /// <summary>
+        /// Reports whether the warning level is enabled. Reads the underlying <see cref="ILogMethods.IsEnabled"/>
+        /// until the property is assigned; an explicit assignment takes precedence from then on.
+        /// </summary>
         public override bool IsWarnEnabled
         {
-            get { return warningLog.IsEnabled; }
+            get { return isWarnEnabledOverride.HasValue ? isWarnEnabledOverride.Value : warningLog.IsEnabled; }
+            set { isWarnEnabledOverride = value; }
         }
 
+        /// <summary>
+        /// Reports whether the trace level is enabled. Reads the underlying <see cref="ILogMethods.IsEnabled"/>
+        /// until the property is assigned; an explicit assignment takes precedence from then on.
+        /// </summary>
         public override bool IsTraceEnabled
         {
-            get { return traceLog.IsEnabled; }
+            get { return isTraceEnabledOverride.HasValue ? isTraceEnabledOverride.Value : traceLog.IsEnabled; }
+            set { isTraceEnabledOverride = value; }
         }
 
+        /// <summary>
+        /// Reports whether the debug level is enabled. Reads the underlying <see cref="ILogMethods.IsEnabled"/>
+        /// until the property is assigned; an explicit assignment takes precedence from then on.
+        /// </summary>
         public override bool IsDebugEnabled
         {
-            get { return debugLog.IsEnabled; }
+            get { return isDebugEnabledOverride.HasValue ? isDebugEnabledOverride.Value : debugLog.IsEnabled; }
+            set { isDebugEnabledOverride = value; }
         }
 
+        /// <summary>
+        /// Reports whether the info level is enabled. Reads the underlying <see cref="ILogMethods.IsEnabled"/>
+        /// until the property is assigned; an explicit assignment takes precedence from then on.
+        /// </summary>
         public override bool IsInfoEnabled
         {
-            get { return infoLog.IsEnabled; }
+            get { return isInfoEnabledOverride.HasValue ? isInfoEnabledOverride.Value : infoLog.IsEnabled; }
+            set { isInfoEnabledOverride = value; }
         }
         #endregion
 
@@ -49,6 +79,13 @@ namespace idev.LoggerWrapper
         private readonly ILogMethods traceLog;
         private readonly ILogMethods debugLog;
         private readonly ILogMethods infoLog;
+
+        private bool? isFatalEnabledOverride;
+        private bool? isErrorEnabledOverride;
+        private bool? isWarnEnabledOverride;
+        private bool? isTraceEnabledOverride;
+        private bool? isDebugEnabledOverride;
+        private bool? isInfoEnabledOverride;
 
         #endregion
 
